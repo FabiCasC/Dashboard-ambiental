@@ -465,92 +465,81 @@ interface WorldMapProps {
   onCountrySelect: (code: string) => void
 }
 
-const geoUrl = "https://raw.githubusercontent.com/deldersveld/topojson/master/world-countries.json"
-
 const WorldMap = ({ countries, selectedCountry, onCountrySelect }: WorldMapProps) => {
+  const sortedCountries = [...countries].sort((a, b) => b.emissions2022 - a.emissions2022).slice(0, 10)
+
   return (
     <div
-      className="relative w-full h-[600px] bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl overflow-hidden border border-slate-200 shadow-xl"
+      className="relative w-full h-[600px] bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl overflow-hidden border border-slate-200 shadow-xl p-8"
       data-tour="world-map"
     >
-      <ComposableMap
-        projection="geoMercator"
-        projectionConfig={{
-          scale: 100,
-          center: [0, 30]
-        }}
-      >
-        <ZoomableGroup>
-          <Geographies geography={geoUrl}>
-            {({ geographies }: { geographies: Feature[] }) =>
-              geographies.map((geo) => {
-                const isSelected = selectedCountry === geo.properties?.ISO_A2
-                return (
-                  <Geography
-                    key={geo.id}
-                    geography={geo}
-                    onMouseEnter={() => {
-                      const { ISO_A2 } = geo.properties || {}
-                      if (ISO_A2) onCountrySelect(ISO_A2)
-                    }}
-                    style={{
-                      default: {
-                        fill: isSelected ? "#94a3b8" : "#e2e8f0",
-                        stroke: "#94a3b8",
-                        strokeWidth: 0.5,
-                        outline: "none",
-                      },
-                      hover: {
-                        fill: "#cbd5e1",
-                        stroke: "#64748b",
-                        strokeWidth: 0.5,
-                        outline: "none",
-                      },
-                      pressed: {
-                        fill: "#94a3b8",
-                        stroke: "#64748b",
-                        strokeWidth: 0.5,
-                        outline: "none",
-                      },
-                    }}
-                  />
-                )
-              })
-            }
-          </Geographies>
-        </ZoomableGroup>
-      </ComposableMap>
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-purple-500/5"></div>
+      
+      {/* Título y descripción */}
+      <div className="relative mb-8">
+        <h3 className="text-2xl font-bold text-slate-900 mb-2">Top 10 Emisores Globales</h3>
+        <p className="text-slate-600">Emisiones de CO₂ por país en millones de toneladas (2022)</p>
+      </div>
 
-      {/* Puntos de países */}
-      {countries.map((country, index) => (
-        <div
-          key={country.code}
-          className={`absolute w-6 h-6 rounded-full cursor-pointer transition-all duration-500 hover:scale-150 hover:z-10 shadow-lg ${
-            selectedCountry === country.code
-              ? "scale-125 ring-4 ring-white shadow-2xl"
-              : "hover:ring-2 hover:ring-white/50"
-          }`}
-          style={{
-            left: `${country.position.x}%`,
-            top: `${country.position.y}%`,
-            backgroundColor: country.color,
-            animationDelay: `${index * 0.1}s`,
-            boxShadow: `0 0 20px ${country.color}40`,
-          }}
-          onClick={() => onCountrySelect(country.code)}
-        >
-          <div
-            className="absolute inset-0 rounded-full animate-ping opacity-40"
-            style={{ backgroundColor: country.color }}
-          ></div>
-          <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-sm px-4 py-2 rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-20 shadow-xl">
-            <div className="font-bold mb-1">{country.name}</div>
-            <div className="text-xs opacity-80">
-              {country.emissions2022.toLocaleString()} MtCO₂e
+      {/* Gráfico de barras */}
+      <div className="relative h-[400px] flex items-end justify-between gap-4">
+        {sortedCountries.map((country, index) => {
+          const maxEmissions = sortedCountries[0].emissions2022
+          const height = (country.emissions2022 / maxEmissions) * 100
+          const isSelected = selectedCountry === country.code
+
+          return (
+            <div
+              key={country.code}
+              className="flex-1 flex flex-col items-center group cursor-pointer"
+              onClick={() => onCountrySelect(country.code)}
+            >
+              {/* Barra */}
+              <div
+                className={`w-full relative transition-all duration-500 ${
+                  isSelected ? 'scale-105' : 'hover:scale-105'
+                }`}
+                style={{ height: `${height}%` }}
+              >
+                <div
+                  className="absolute inset-0 rounded-t-xl bg-gradient-to-t"
+                  style={{
+                    backgroundImage: `linear-gradient(to top, ${country.color}, ${country.color}80)`,
+                    boxShadow: `0 0 20px ${country.color}40`,
+                  }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-t-xl"></div>
+                </div>
+                
+                {/* Efecto de brillo */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+
+              {/* Nombre del país */}
+              <div className="mt-4 text-center">
+                <div className="text-sm font-medium text-slate-700">{country.name}</div>
+                <div className="text-xs text-slate-500">
+                  {country.emissions2022.toLocaleString()} MtCO₂e
+                </div>
+              </div>
+
+              {/* Indicador de tendencia */}
+              <div className="mt-2 flex items-center space-x-1">
+                {country.trend === "down" ? (
+                  <TrendingDown className="w-4 h-4 text-emerald-500" />
+                ) : (
+                  <TrendingUp className="w-4 h-4 text-red-500" />
+                )}
+                <span className={`text-xs font-medium ${
+                  country.trend === "down" ? "text-emerald-500" : "text-red-500"
+                }`}>
+                  {Math.abs(country.reduction)}%
+                </span>
+              </div>
             </div>
-          </div>
-        </div>
-      ))}
+          )
+        })}
+      </div>
 
       {/* Leyenda */}
       <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm px-6 py-4 rounded-xl shadow-lg">
@@ -566,10 +555,21 @@ const WorldMap = ({ countries, selectedCountry, onCountrySelect }: WorldMapProps
         </div>
       </div>
 
-      {/* Título del mapa */}
-      <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-sm px-6 py-4 rounded-xl shadow-lg">
-        <h3 className="text-lg font-bold text-slate-900">Mapa Global de Emisiones</h3>
-        <p className="text-sm text-slate-600">Haz clic en cualquier país para ver sus datos</p>
+      {/* Información adicional */}
+      <div className="absolute top-6 right-6 bg-white/90 backdrop-blur-sm px-6 py-4 rounded-xl shadow-lg">
+        <div className="flex items-center space-x-4">
+          <div className="text-right">
+            <div className="text-sm text-slate-600">Total Global</div>
+            <div className="text-xl font-bold text-slate-900">
+              {sortedCountries.reduce((sum, country) => sum + country.emissions2022, 0).toLocaleString()} MtCO₂e
+            </div>
+          </div>
+          <div className="h-12 w-px bg-slate-200"></div>
+          <div className="text-right">
+            <div className="text-sm text-slate-600">Países Analizados</div>
+            <div className="text-xl font-bold text-slate-900">{sortedCountries.length}</div>
+          </div>
+        </div>
       </div>
     </div>
   )
