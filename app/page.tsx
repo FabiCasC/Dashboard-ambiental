@@ -59,6 +59,10 @@ import {
   Bell,
   Lightbulb,
   ZapIcon,
+  Settings,
+  BarChart2,
+  FileText,
+  Trophy,
 } from "lucide-react"
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps"
 import type { Feature } from "geojson"
@@ -269,39 +273,45 @@ const alertsData = [
 const tourSteps = [
   {
     id: "welcome",
-    title: "¡Bienvenido a EcoVision Pro! 🌱",
+    title: "Bienvenido a EcoVision Pro",
     content: "Este dashboard muestra datos de emisiones GHG. En 'Vista General' ves datos de tu organización, y en 'Por Países' ves datos globales reales.",
     target: null,
+    icon: Sparkles,
   },
   {
     id: "header",
-    title: "Panel de Control Principal 🎛️",
+    title: "Panel de Control Principal",
     content: "Aquí tienes todos los controles: búsqueda de países, cambio de vistas, actualización de datos y este tour guiado.",
     target: "header",
+    icon: Settings,
   },
   {
     id: "kpi-cards",
-    title: "Indicadores Clave (KPIs) 📊",
+    title: "Indicadores Clave (KPIs)",
     content: "Estas tarjetas muestran los datos más importantes de tu organización: emisiones totales, metas, eficiencia y progreso.",
     target: "kpi-cards",
+    icon: BarChart3,
   },
   {
     id: "trend-chart",
-    title: "Tendencias y Predicciones 📈",
+    title: "Tendencias y Predicciones",
     content: "Este gráfico muestra datos históricos, objetivos y predicciones con IA. La línea verde son emisiones reales, roja los objetivos, y azul las predicciones.",
     target: "trend-chart",
+    icon: TrendingUp,
   },
   {
     id: "alerts-section",
-    title: "Alertas Inteligentes 🚨",
+    title: "Alertas Inteligentes",
     content: "Aquí ves alertas automáticas sobre el estado de tus emisiones: advertencias, logros y oportunidades de mejora.",
     target: "alerts-section",
+    icon: Bell,
   },
   {
     id: "countries-tab",
-    title: "Vista de Países 🗺️",
-    content: "¡Ahora vamos al mapa mundial! Esta vista muestra datos REALES de emisiones por país a nivel global.",
+    title: "Vista de Países",
+    content: "¡Ahora vamos a ver los datos globales! Esta vista muestra datos REALES de emisiones por país a nivel global.",
     target: "countries-tab",
+    icon: Globe,
     action: () => {
       const tab = document.querySelector('[value="countries"]') as HTMLButtonElement
       if (tab) tab.click()
@@ -309,27 +319,31 @@ const tourSteps = [
   },
   {
     id: "world-map",
-    title: "Mapa Mundial Interactivo 🌍",
-    content: "Cada punto es un país real con sus emisiones reales de CO₂. Haz clic en cualquier país para ver sus datos detallados.",
+    title: "Top 10 Emisores Globales",
+    content: "Este gráfico muestra los 10 países con mayores emisiones de CO₂. Cada barra representa un país con sus emisiones reales y tendencia de cambio.",
     target: "world-map",
+    icon: BarChart2,
   },
   {
     id: "country-details",
-    title: "Detalles del País 📋",
+    title: "Detalles del País",
     content: "Aquí ves datos reales del país seleccionado: emisiones 2021, 2022, cambio porcentual, población y PIB.",
     target: "country-details",
+    icon: FileText,
   },
   {
     id: "country-ranking",
-    title: "Ranking Global Real 🏆",
+    title: "Ranking Global Real",
     content: "Lista de países ordenados por emisiones reales. China, Estados Unidos e India son los mayores emisores mundiales.",
     target: "country-ranking",
+    icon: Trophy,
   },
   {
     id: "final",
-    title: "¡Tour Completado! 🎉",
+    title: "¡Tour Completado!",
     content: "¡Perfecto! Ahora conoces ambas vistas: datos organizacionales (Vista General) y datos globales reales (Por Países). ¡Explora libremente!",
     target: null,
+    icon: CheckCircle2,
   },
 ]
 
@@ -401,6 +415,7 @@ const TourOverlay = ({ isActive, currentStep, onNext, onPrev, onClose }: TourOve
   if (!isActive || !mounted) return null
 
   const currentStepData = tourSteps[currentStep]
+  const IconComponent = currentStepData.icon
 
   return (
     <div className="fixed inset-0 bg-black/50 z-40">
@@ -410,7 +425,10 @@ const TourOverlay = ({ isActive, currentStep, onNext, onPrev, onClose }: TourOve
           className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 relative"
         >
           <div className="mb-6">
-            <h3 className="text-xl font-bold text-slate-900 mb-2">{currentStepData.title}</h3>
+            <div className="flex items-center space-x-3 mb-2">
+              {IconComponent && <IconComponent className="w-6 h-6 text-violet-600" />}
+              <h3 className="text-xl font-bold text-slate-900">{currentStepData.title}</h3>
+            </div>
             <p className="text-slate-600">{currentStepData.content}</p>
           </div>
 
