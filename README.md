@@ -82,6 +82,6 @@ Los datos de ejemplo están incluidos en el código. Para usar datos reales:
 Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
 
 ## 👥 Autores
-- [Tu Nombre] - Desarrollador Principal
+- Fabiana Castro - Desarrollador Principal
 ---
 Hecho con ❤️ para un futuro más sostenible 
