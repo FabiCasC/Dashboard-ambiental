@@ -37,7 +37,7 @@ EcoVision Pro es un dashboard interactivo y moderno para visualizar y analizar d
 1. **Clonar el repositorio**
 ```bash
 git clone [URL_DEL_REPOSITORIO]
-cd ghg-dashboard
+cd dashboard-ambiental
 ```
 
 2. **Instalar dependencias**
